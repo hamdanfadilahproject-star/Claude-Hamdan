@@ -1,0 +1,467 @@
+<title>Perjalanan Setetes Hujan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: scene panel sticky, langkah-langkah siklus air bergulir di sampingnya; lalu bagian materi berurutan dalam satu kolom. */
+:root {
+  --bg: #eef3f6;
+  --surface: #ffffff;
+  --ink: #12283a;
+  --muted: #4d6577;
+  --line: #c9d6df;
+  --rain: #2f7fc1;
+  --sea: #1f6aa5;
+  --sun: #f2a33a;
+  --land: #6f8f5a;
+  --cloud: #f7fafc;
+  --cloud-dark: #7d8fa0;
+  --sky-top: #bfe0f3;
+  --sky-bot: #e6f3fa;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1820; --surface: #13222d; --ink: #e3edf3; --muted: #9db2c1; --line: #24394a;
+    --rain: #6db4ee; --sea: #2a78b5; --sun: #f0b45c; --land: #4f6d40; --cloud: #d9e3ea; --cloud-dark: #5c6e7d;
+    --sky-top: #142c3d; --sky-bot: #1d3a4e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1820; --surface: #13222d; --ink: #e3edf3; --muted: #9db2c1; --line: #24394a;
+  --rain: #6db4ee; --sea: #2a78b5; --sun: #f0b45c; --land: #4f6d40; --cloud: #d9e3ea; --cloud-dark: #5c6e7d;
+  --sky-top: #142c3d; --sky-bot: #1d3a4e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 1.05rem/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.1; margin: 0; }
+p { margin: 0; }
+.eyebrow { font: 500 .75rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--rain); }
+
+/* Hero */
+.hero { padding-block: 56px 32px; display: grid; gap: 16px; max-width: 760px; }
+.hero h1 { font-size: clamp(2.4rem, 6vw, 4.4rem); font-weight: 800; letter-spacing: -.02em; }
+.hero h1 span { color: var(--rain); }
+.hero p { font-size: 1.2rem; color: var(--muted); max-width: 60ch; }
+.hint { font: 500 .8rem var(--f-mono); color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.hint i { display: inline-block; width: 2px; height: 22px; background: var(--rain); border-radius: 2px; transform-origin: top; animation: drip 1.6s ease-in-out infinite; }
+@keyframes drip { 0%{transform:scaleY(.2);opacity:0} 40%{opacity:1} 100%{transform:translateY(10px) scaleY(1);opacity:0} }
+
+/* Cycle */
+.cycle { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; padding-block: 24px 64px; }
+.scene-box { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); align-self: start; }
+.scene { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid var(--line); background: var(--sky-bot); }
+.scene-cap { margin-top: 10px; font: 500 .8rem var(--f-mono); color: var(--muted); display: flex; justify-content: space-between; gap: 12px; }
+.progress { height: 4px; background: var(--line); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.progress b { display: block; height: 100%; background: var(--rain); transform-origin: left; transform: scaleX(0); }
+.steps { display: grid; gap: 0; min-width: 0; }
+.step { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding-block: 24px; opacity: .5; transition: opacity .3s; }
+.step.is-active { opacity: 1; }
+.step .num { font: 500 .8rem var(--f-mono); color: var(--rain); }
+.step h3 { font-size: 1.8rem; font-weight: 700; }
+.step p { color: var(--muted); max-width: 46ch; }
+.step .term { font: 500 .85rem var(--f-mono); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; align-self: flex-start; }
+
+/* Generic section */
+section.block { padding-block: 64px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+section.block > header { display: grid; gap: 10px; max-width: 64ch; }
+section.block h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; }
+section.block header p { color: var(--muted); }
+
+/* Jenis hujan */
+.types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.type { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 10px; align-content: start; }
+.type svg { width: 100%; height: auto; border-radius: 10px; background: var(--sky-bot); }
+.type h3 { font-size: 1.3rem; }
+.type p { color: var(--muted); font-size: .98rem; }
+.type .where { font: 500 .78rem var(--f-mono); color: var(--rain); }
+
+/* Intensitas */
+.scale { display: grid; gap: 12px; }
+.row { display: grid; grid-template-columns: 150px 1fr 120px; gap: 14px; align-items: center; }
+.row .lbl { font-weight: 600; }
+.row .bar { height: 18px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.row .bar b { display: block; height: 100%; background: var(--rain); border-radius: 4px; transform-origin: left; }
+.row .val { font: 500 .85rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.note { font-size: .92rem; color: var(--muted); max-width: 70ch; }
+.gauge { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.gauge svg { width: 120px; height: auto; }
+.gauge p { color: var(--muted); max-width: 60ch; }
+.gauge strong { color: var(--ink); }
+
+/* Bentuk tetes */
+.shape { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.drop-stage { position: relative; height: 300px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.drop { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; background: var(--rain); border-radius: 50%; }
+.mini { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; background: var(--rain); border-radius: 50%; opacity: 0; }
+.readout { position: absolute; left: 16px; bottom: 14px; right: 16px; display: flex; justify-content: space-between; font: 500 .85rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.shape-text { display: grid; gap: 14px; }
+.shape-text ol { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; color: var(--muted); }
+.shape-text b { color: var(--ink); }
+
+footer { padding-block: 40px 64px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+
+@media (max-width: 820px) {
+  .cycle { grid-template-columns: 1fr; gap: 0; }
+  .scene-box { z-index: 2; background: var(--bg); padding-block: 8px; top: env(safe-area-inset-top, 0px); }
+  .step { min-height: 55vh; }
+  .types { grid-template-columns: 1fr; }
+  .shape { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 96px 1fr 84px; gap: 10px; }
+  .gauge { grid-template-columns: 1fr; }
+}
+a:focus-visible, button:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hint i { animation: none; } .step { opacity: 1; } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Materi IPA · Siklus Air</span>
+    <h1>Dari mana <span>hujan</span> datang?</h1>
+    <p>Setiap tetes hujan pernah menjadi air laut, uap, dan awan. Gulir halaman ini untuk mengikuti perjalanannya, lalu pelajari jenis hujan, cara mengukurnya, dan bentuk asli tetesannya.</p>
+    <div class="hint"><i></i> Gulir ke bawah</div>
+  </header>
+
+  <!-- Siklus air -->
+  <section class="cycle" id="siklus" aria-label="Siklus air">
+    <div class="scene-box">
+      <svg class="scene" viewBox="0 0 800 500" role="img" aria-label="Ilustrasi siklus air: matahari, laut, awan, gunung, hujan, dan sungai">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="var(--sky-top)"/><stop offset="1" stop-color="var(--sky-bot)"/>
+          </linearGradient>
+          <radialGradient id="glow"><stop offset="0" stop-color="var(--sun)" stop-opacity=".55"/><stop offset="1" stop-color="var(--sun)" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="800" height="500" fill="url(#sky)"/>
+        <g id="sun">
+          <circle id="sunGlow" cx="110" cy="90" r="90" fill="url(#glow)" opacity=".4"/>
+          <circle cx="110" cy="90" r="40" fill="var(--sun)"/>
+        </g>
+        <!-- Laut -->
+        <path d="M0 385 Q 50 375 100 385 T 200 385 T 300 385 T 400 385 L 440 500 L 0 500 Z" fill="var(--sea)"/>
+        <!-- Daratan & gunung -->
+        <path d="M400 500 L 430 400 L 520 330 L 640 165 L 720 250 L 800 230 L 800 500 Z" fill="var(--land)"/>
+        <path d="M640 165 L 615 200 L 632 195 L 645 210 L 660 190 Z" fill="var(--cloud)" opacity=".9"/>
+        <!-- Sungai -->
+        <path id="river" d="M630 215 C 600 270, 560 290, 540 330 S 470 380, 425 410" fill="none" stroke="var(--rain)" stroke-width="7" stroke-linecap="round"/>
+        <!-- Air tanah -->
+        <g id="ground" opacity="0" fill="none" stroke="var(--cloud)" stroke-width="3" stroke-dasharray="6 8" stroke-linecap="round">
+          <path d="M700 330 C 650 420, 560 450, 450 470"/>
+          <path d="M640 380 C 600 440, 540 460, 470 485"/>
+        </g>
+        <!-- Uap -->
+        <g id="vapor" fill="var(--cloud)"></g>
+        <!-- Awan -->
+        <g id="cloud" opacity="0">
+          <g id="cloudShape">
+            <ellipse cx="0" cy="0" rx="70" ry="34"/>
+            <ellipse cx="-50" cy="12" rx="44" ry="26"/>
+            <ellipse cx="52" cy="12" rx="48" ry="26"/>
+            <ellipse cx="10" cy="-26" rx="44" ry="30"/>
+          </g>
+        </g>
+        <!-- Hujan -->
+        <g id="rain" opacity="0" stroke="var(--rain)" stroke-width="2.5" stroke-linecap="round"></g>
+        <!-- Label -->
+        <g font-family="JetBrains Mono, monospace" font-size="15" fill="var(--ink)">
+          <text id="lbl" x="24" y="476" opacity=".85">1 · Evaporasi</text>
+        </g>
+      </svg>
+      <div class="scene-cap"><span id="capStep">Langkah 1 dari 5</span><span>Siklus hidrologi</span></div>
+      <div class="progress" aria-hidden="true"><b id="bar"></b></div>
+    </div>
+
+    <div class="steps">
+      <article class="step is-active">
+        <span class="num">Langkah 1</span>
+        <h3>Evaporasi</h3>
+        <p>Panas matahari memanaskan permukaan laut, danau, dan sungai. Sebagian air berubah menjadi uap air yang tidak terlihat dan naik ke udara. Daun tumbuhan juga melepaskan uap air lewat proses yang disebut transpirasi.</p>
+        <span class="term">air (cair) → uap air (gas)</span>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 2</span>
+        <h3>Kondensasi</h3>
+        <p>Makin tinggi, udara makin dingin, sekitar 6,5 °C lebih dingin setiap naik 1 km. Uap air mendingin lalu mengembun menempel pada partikel debu dan garam laut, membentuk titik-titik air yang sangat kecil. Kumpulan titik inilah yang kita lihat sebagai awan.</p>
+        <span class="term">uap air (gas) → titik air (cair)</span>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 3</span>
+        <h3>Adveksi</h3>
+        <p>Angin mendorong awan bergerak ke daratan. Selama perjalanan, titik-titik air saling bertabrakan dan bergabung sehingga awan makin tebal dan tampak lebih gelap.</p>
+        <span class="term">awan bergerak mengikuti angin</span>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 4</span>
+        <h3>Presipitasi</h3>
+        <p>Ketika titik air sudah cukup besar dan berat, udara tidak sanggup lagi menahannya. Air jatuh ke bumi sebagai hujan. Di daerah sangat dingin, presipitasi bisa berupa salju atau es.</p>
+        <span class="term">titik air ≥ 0,5 mm → jatuh sebagai hujan</span>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 5</span>
+        <h3>Limpasan &amp; Infiltrasi</h3>
+        <p>Air hujan yang mengalir di permukaan tanah disebut limpasan (run-off). Air ini masuk ke sungai dan kembali ke laut. Sebagian lagi meresap ke dalam tanah (infiltrasi) dan menjadi air tanah. Lalu siklus dimulai lagi.</p>
+        <span class="term">kembali ke laut → siklus berulang</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- Jenis hujan -->
+  <section class="block" id="jenis">
+    <header>
+      <span class="eyebrow">Jenis hujan</span>
+      <h2>Tiga cara udara naik, tiga jenis hujan</h2>
+      <p>Hujan selalu terjadi karena udara lembap naik lalu mendingin. Yang membedakan adalah penyebab udara itu naik.</p>
+    </header>
+    <div class="types">
+      <article class="type">
+        <svg viewBox="0 0 240 140" aria-hidden="true">
+          <rect width="240" height="140" fill="var(--sky-bot)"/>
+          <rect y="110" width="240" height="30" fill="var(--land)"/>
+          <circle cx="200" cy="28" r="14" fill="var(--sun)"/>
+          <path class="rise" d="M70 108 V 60 M120 108 V 60 M170 108 V 60" stroke="var(--sun)" stroke-width="3" stroke-dasharray="4 6" fill="none"/>
+          <ellipse cx="120" cy="40" rx="60" ry="20" fill="var(--cloud-dark)"/>
+        </svg>
+        <h3>Hujan Konveksi</h3>
+        <p>Tanah yang panas memanaskan udara di atasnya. Udara panas naik dengan cepat dan membentuk awan kumulonimbus yang menjulang. Biasanya turun deras di sore hari, singkat, sering disertai petir.</p>
+        <span class="where">Paling sering di Indonesia</span>
+      </article>
+      <article class="type">
+        <svg viewBox="0 0 240 140" aria-hidden="true">
+          <rect width="240" height="140" fill="var(--sky-bot)"/>
+          <path d="M0 140 L 110 40 L 240 140 Z" fill="var(--land)"/>
+          <path class="rise" d="M10 120 L 70 70" stroke="var(--rain)" stroke-width="3" stroke-dasharray="4 6" fill="none"/>
+          <ellipse cx="80" cy="40" rx="40" ry="16" fill="var(--cloud-dark)"/>
+          <path d="M70 60 l-4 12 M84 60 l-4 12 M98 60 l-4 12" stroke="var(--rain)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <h3>Hujan Orografis</h3>
+        <p>Angin membawa udara lembap menabrak lereng gunung dan memaksanya naik. Hujan turun di lereng yang menghadap angin. Lereng di baliknya lebih kering dan disebut daerah bayangan hujan.</p>
+        <span class="where">Contoh: lereng Pegunungan Bukit Barisan</span>
+      </article>
+      <article class="type">
+        <svg viewBox="0 0 240 140" aria-hidden="true">
+          <rect width="240" height="140" fill="var(--sky-bot)"/>
+          <rect y="120" width="240" height="20" fill="var(--land)"/>
+          <path d="M0 120 L 150 120 L 240 50 L 240 120" fill="var(--sea)" opacity=".35"/>
+          <path class="rise" d="M150 118 L 220 64" stroke="var(--ink)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+          <ellipse cx="170" cy="40" rx="52" ry="18" fill="var(--cloud-dark)"/>
+          <text x="20" y="100" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--muted)">udara dingin</text>
+        </svg>
+        <h3>Hujan Frontal</h3>
+        <p>Massa udara panas bertemu massa udara dingin. Udara panas yang lebih ringan terdorong naik di atas udara dingin dan membentuk awan. Hujannya cenderung merata dan bisa berlangsung lama.</p>
+        <span class="where">Umum di daerah lintang sedang</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- Mengukur hujan -->
+  <section class="block" id="ukur">
+    <header>
+      <span class="eyebrow">Mengukur hujan</span>
+      <h2>Berapa milimeter hujan hari ini?</h2>
+      <p>Curah hujan diukur dalam milimeter (mm). Hujan 1 mm berarti di setiap 1 m² permukaan datar terkumpul 1 liter air, jika air itu tidak meresap, menguap, atau mengalir.</p>
+    </header>
+    <div class="gauge">
+      <svg viewBox="0 0 120 200" aria-hidden="true">
+        <path d="M20 20 L 100 20 L 76 52 L 44 52 Z" fill="var(--cloud-dark)"/>
+        <rect x="40" y="52" width="40" height="130" rx="4" fill="none" stroke="var(--ink)" stroke-width="3"/>
+        <rect id="gaugeWater" x="43" y="120" width="34" height="59" fill="var(--rain)"/>
+        <g stroke="var(--muted)" stroke-width="2"><path d="M80 80 h10 M80 110 h10 M80 140 h10 M80 170 h10"/></g>
+      </svg>
+      <p><strong>Ombrometer</strong> adalah alat penakar hujan. Air hujan masuk lewat corong ke tabung penampung, lalu tinggi airnya dicatat setiap hari. Di Indonesia, pengamatan curah hujan dilakukan oleh BMKG di ribuan pos penakar hujan.</p>
+    </div>
+    <div class="scale" role="table" aria-label="Kategori intensitas curah hujan harian menurut BMKG">
+      <div class="row" role="row"><span class="lbl" role="cell">Ringan</span><span class="bar"><b style="width:13%"></b></span><span class="val" role="cell">5–20 mm</span></div>
+      <div class="row" role="row"><span class="lbl" role="cell">Sedang</span><span class="bar"><b style="width:33%"></b></span><span class="val" role="cell">20–50 mm</span></div>
+      <div class="row" role="row"><span class="lbl" role="cell">Lebat</span><span class="bar"><b style="width:67%"></b></span><span class="val" role="cell">50–100 mm</span></div>
+      <div class="row" role="row"><span class="lbl" role="cell">Sangat lebat</span><span class="bar"><b style="width:100%"></b></span><span class="val" role="cell">100–150 mm</span></div>
+      <div class="row" role="row"><span class="lbl" role="cell">Ekstrem</span><span class="bar"><b style="width:100%;opacity:.6"></b></span><span class="val" role="cell">&gt; 150 mm</span></div>
+    </div>
+    <p class="note">Kategori curah hujan per hari (24 jam) yang dipakai BMKG. Panjang batang menunjukkan batas atas tiap kategori pada skala 0–150 mm.</p>
+  </section>
+
+  <!-- Bentuk tetes -->
+  <section class="block" id="bentuk">
+    <header>
+      <span class="eyebrow">Fakta unik</span>
+      <h2>Tetes hujan tidak berbentuk seperti air mata</h2>
+      <p>Gambar tetes hujan biasanya runcing di atas. Kenyataannya berbeda. Gulir untuk melihat bentuk tetes saat ukurannya bertambah.</p>
+    </header>
+    <div class="shape">
+      <div class="drop-stage" id="dropStage" aria-hidden="true">
+        <div class="drop" id="drop"></div>
+        <div class="mini"></div><div class="mini"></div><div class="mini"></div>
+        <div class="readout"><span id="dSize">Ø 1 mm</span><span id="dSpeed">± 4 m/s</span></div>
+      </div>
+      <div class="shape-text">
+        <ol>
+          <li><b>Kurang dari 1 mm:</b> tetes kecil berbentuk bulat karena tegangan permukaan air menariknya ke segala arah.</li>
+          <li><b>Sekitar 2–4 mm:</b> hambatan udara menekan bagian bawahnya hingga datar. Bentuknya mirip roti hamburger.</li>
+          <li><b>Lebih dari ±4,5 mm:</b> tekanan udara membuat tetes melebar seperti parasut lalu pecah menjadi tetes-tetes kecil.</li>
+        </ol>
+        <p class="note">Tetes besar jatuh dengan kecepatan sekitar 9 m/s, kira-kira 32 km/jam. Kecepatan ini tetap karena hambatan udara mengimbangi gaya gravitasi.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Rangkuman: air menguap, mengembun menjadi awan, terbawa angin, turun sebagai hujan, lalu kembali ke laut. Siklus ini terus berulang dan menjaga persediaan air tawar di bumi.</p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const NS = "http://www.w3.org/2000/svg";
+
+// Bangun partikel uap dan tetes hujan
+const vapor = document.getElementById("vapor");
+for (let i = 0; i < 16; i++) {
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", 50 + i * 20 + gsap.utils.random(-6, 6));
+  c.setAttribute("cy", 375);
+  c.setAttribute("r", gsap.utils.random(3, 6));
+  c.setAttribute("opacity", 0);
+  vapor.appendChild(c);
+}
+const rain = document.getElementById("rain");
+const drops = [];
+for (let i = 0; i < 34; i++) {
+  const l = document.createElementNS(NS, "line");
+  const x = gsap.utils.random(470, 680);
+  l.setAttribute("x1", x); l.setAttribute("x2", x - 4);
+  l.setAttribute("y1", 0); l.setAttribute("y2", 14);
+  rain.appendChild(l); drops.push(l);
+}
+
+const steps = gsap.utils.toArray(".step");
+const labels = ["1 · Evaporasi", "2 · Kondensasi", "3 · Adveksi", "4 · Presipitasi", "5 · Limpasan & Infiltrasi"];
+const river = document.getElementById("river");
+const riverLen = river.getTotalLength();
+const lbl = document.getElementById("lbl");
+const cap = document.getElementById("capStep");
+let current = -1;
+function setStep(i) {
+  if (i === current) return;
+  current = i;
+  steps.forEach((s, n) => s.classList.toggle("is-active", n === i));
+  lbl.textContent = labels[i];
+  cap.textContent = "Langkah " + (i + 1) + " dari 5";
+}
+
+const mm = gsap.matchMedia();
+
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+  gsap.set("#cloud", { x: 220, y: 150, scale: .4, transformOrigin: "50% 50%" });
+  gsap.set("#cloudShape", { fill: "var(--cloud)" });
+  gsap.set(river, { strokeDasharray: riverLen, strokeDashoffset: riverLen });
+
+  // Hujan jatuh terus-menerus; tampil/tersembunyi diatur timeline scroll
+  drops.forEach(d => {
+    gsap.fromTo(d, { y: gsap.utils.random(150, 200) }, {
+      y: gsap.utils.random(320, 380), duration: gsap.utils.random(.45, .75),
+      ease: "none", repeat: -1, delay: gsap.utils.random(0, .8)
+    });
+  });
+
+  const tl = gsap.timeline({
+    defaults: { ease: "power1.inOut" },
+    scrollTrigger: {
+      trigger: ".steps", start: "top 60%", end: "bottom 70%", scrub: 1,
+      onUpdate: self => {
+        setStep(Math.min(4, Math.floor(self.progress * 5)));
+        gsap.set("#bar", { scaleX: self.progress });
+      }
+    }
+  });
+
+  // 1 Evaporasi
+  tl.addLabel("evap")
+    .to("#sunGlow", { attr: { r: 130 }, opacity: 1, duration: 1 }, "evap")
+    .to("#vapor circle", { opacity: .9, y: -170, stagger: .05, duration: 1.4 }, "evap")
+  // 2 Kondensasi
+    .addLabel("kond")
+    .to("#vapor circle", { opacity: 0, y: -210, duration: .6 }, "kond")
+    .to("#cloud", { opacity: 1, scale: 1, duration: 1.2 }, "kond")
+  // 3 Adveksi
+    .addLabel("adv")
+    .to("#cloud", { x: 570, y: 130, scale: 1.15, duration: 1.4 }, "adv")
+    .to("#cloudShape", { fill: "var(--cloud-dark)", duration: 1.4 }, "adv")
+    .to("#sunGlow", { opacity: .35, attr: { r: 90 }, duration: 1.4 }, "adv")
+  // 4 Presipitasi
+    .addLabel("pres")
+    .to("#rain", { opacity: 1, duration: .8 }, "pres")
+    .to({}, { duration: .8 })
+  // 5 Limpasan & infiltrasi
+    .addLabel("run")
+    .to(river, { strokeDashoffset: 0, duration: 1.2, ease: "none" }, "run")
+    .to("#ground", { opacity: .9, duration: .8 }, "run+=.4")
+    .to("#ground path", { strokeDashoffset: -60, duration: 1.2, ease: "none" }, "run");
+
+  // Kartu jenis hujan: masuk saat terlihat
+  ScrollTrigger.batch(".type", {
+    start: "top 85%", once: true,
+    onEnter: els => gsap.from(els, { y: 40, stagger: .12, duration: .7, ease: "power2.out" })
+  });
+  gsap.utils.toArray(".type .rise").forEach(p => {
+    gsap.to(p, { strokeDashoffset: -40, duration: 1.2, ease: "none", repeat: -1 });
+  });
+
+  // Ombrometer terisi dan batang intensitas tumbuh
+  gsap.from("#gaugeWater", {
+    attr: { y: 179, height: 0 }, ease: "none",
+    scrollTrigger: { trigger: ".gauge", start: "top 85%", end: "bottom 40%", scrub: true }
+  });
+  gsap.from(".row .bar b", {
+    scaleX: 0, stagger: .12, duration: .9, ease: "power3.out",
+    scrollTrigger: { trigger: ".scale", start: "top 85%", toggleActions: "play none none reverse" }
+  });
+
+  // Bentuk tetes: bulat → hamburger → pecah
+  const dSize = document.getElementById("dSize");
+  const dSpeed = document.getElementById("dSpeed");
+  const minis = gsap.utils.toArray(".mini");
+  const dt = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#bentuk", start: "top 60%", end: "bottom 60%", scrub: .6,
+      onUpdate: self => {
+        const p = self.progress;
+        const size = p < .75 ? (1 + p / .75 * 4).toFixed(1) : "> 5";
+        dSize.textContent = "Ø " + size + " mm";
+        dSpeed.textContent = "± " + Math.round(4 + Math.min(p / .75, 1) * 5) + " m/s";
+      }
+    }
+  });
+  dt.to("#drop", { width: 90, height: 70, marginLeft: -45, marginTop: -35, borderRadius: "50% 50% 46% 46% / 62% 62% 38% 38%", duration: 1 })
+    .to("#drop", { width: 130, height: 56, marginLeft: -65, marginTop: -28, borderRadius: "50% 50% 12% 12% / 80% 80% 20% 20%", duration: 1 })
+    .to("#drop", { width: 150, height: 48, marginTop: -40, borderRadius: "50% 50% 50% 50% / 100% 100% 0% 0%", duration: .6 })
+    .to("#drop", { opacity: 0, scale: 1.2, duration: .3 })
+    .to(minis, { opacity: 1, x: i => [-70, 0, 70][i], y: i => [40, 70, 40][i], duration: .6, stagger: .05 }, "<");
+
+  return () => setStep(0);
+});
+
+// Gerak dikurangi: tampilkan adegan akhir tanpa animasi
+mm.add("(prefers-reduced-motion: reduce)", () => {
+  gsap.set("#cloud", { x: 570, y: 130, scale: 1.15, opacity: 1 });
+  gsap.set("#cloudShape", { fill: "var(--cloud-dark)" });
+  gsap.set("#rain", { opacity: 1 });
+  drops.forEach(d => gsap.set(d, { y: gsap.utils.random(170, 330) }));
+  gsap.set("#ground", { opacity: .9 });
+  lbl.textContent = "Siklus air lengkap";
+  cap.textContent = "Semua langkah";
+});
+
+setStep(0);
+document.fonts && document.fonts.ready.then(() => ScrollTrigger.refresh());
+</script>
