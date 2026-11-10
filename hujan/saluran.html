@@ -1,0 +1,404 @@
+<title>Jaga Saluran Kita</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: hero → siklus singkat → penampang jalan yang tetap di layar sementara cerita bergulir → data limpasan → daftar aksi yang bisa dicentang. */
+:root {
+  --bg: #eef2f1;
+  --surface: #ffffff;
+  --ink: #142a33;
+  --muted: #4e6670;
+  --line: #c8d5d4;
+  --water: #2b7cbf;
+  --warn: #c2521f;
+  --ok: #2f8a5b;
+  --road: #59646b;
+  --soil: #8a6f52;
+  --concrete: #b4bcc0;
+  --sky-top: #c3dbe8;
+  --sky-bot: #e4eff4;
+  --trash: #d68a2e;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e171a; --surface: #152328; --ink: #e2ecee; --muted: #9bb1b6; --line: #253a40;
+    --water: #63aee8; --warn: #ec7b46; --ok: #5cbf8a; --road: #3d474d; --soil: #6b5640; --concrete: #6f7a80;
+    --sky-top: #16303d; --sky-bot: #1c3946; --trash: #e0a050; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e171a; --surface: #152328; --ink: #e2ecee; --muted: #9bb1b6; --line: #253a40;
+  --water: #63aee8; --warn: #ec7b46; --ok: #5cbf8a; --road: #3d474d; --soil: #6b5640; --concrete: #6f7a80;
+  --sky-top: #16303d; --sky-bot: #1c3946; --trash: #e0a050; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 1.05rem/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.08; margin: 0; }
+p { margin: 0; }
+.eyebrow { font: 500 .75rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--water); }
+
+.hero { padding-block: 56px 40px; display: grid; gap: 18px; max-width: 820px; }
+.hero h1 { font-size: clamp(2.3rem, 6vw, 4.2rem); font-weight: 800; letter-spacing: -.02em; }
+.hero h1 em { font-style: normal; color: var(--water); }
+.hero p { font-size: 1.2rem; color: var(--muted); max-width: 58ch; }
+
+section.block { padding-block: 56px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+section.block > header { display: grid; gap: 10px; max-width: 64ch; }
+section.block h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; }
+section.block header p { color: var(--muted); }
+
+/* Siklus singkat */
+.loop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; list-style: none; margin: 0; padding: 0; }
+.loop li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 6px; position: relative; }
+.loop .k { font: 500 .78rem var(--f-mono); color: var(--water); }
+.loop h3 { font-size: 1.2rem; }
+.loop p { color: var(--muted); font-size: .96rem; }
+
+/* Cerita penampang jalan */
+.story { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; padding-block: 24px 56px; border-top: 1px solid var(--line); }
+.scene-box { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); align-self: start; padding-top: 24px; }
+.scene { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid var(--line); background: var(--sky-bot); }
+.status { margin-top: 10px; display: flex; justify-content: space-between; gap: 12px; font: 500 .8rem var(--f-mono); color: var(--muted); }
+.pill { padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.neutral { color: var(--water); }
+.steps { display: grid; min-width: 0; }
+.step { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding-block: 24px; opacity: .5; transition: opacity .3s; }
+.step.is-active { opacity: 1; }
+.step .num { font: 500 .8rem var(--f-mono); color: var(--water); }
+.step h3 { font-size: 1.8rem; }
+.step p { color: var(--muted); max-width: 46ch; }
+
+/* Data limpasan */
+.compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 14px; }
+.card h3 { font-size: 1.3rem; }
+.meter { display: grid; grid-template-columns: 110px 1fr 48px; gap: 10px; align-items: center; font-size: .95rem; }
+.meter .bar { height: 14px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.meter .bar b { display: block; height: 100%; border-radius: 4px; transform-origin: left; }
+.meter .v { font: 500 .85rem var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.b-run { background: var(--warn); } .b-inf { background: var(--water); }
+.note { font-size: .9rem; color: var(--muted); max-width: 72ch; }
+
+/* Aksi */
+.actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.act { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; cursor: pointer; transition: border-color .2s; }
+.act:hover { border-color: var(--water); }
+.act input { width: 22px; height: 22px; margin: 3px 0 0; accent-color: var(--ok); cursor: pointer; }
+.act h3 { font-size: 1.12rem; }
+.act p { color: var(--muted); font-size: .95rem; margin-top: 4px; }
+.act:has(input:checked) { border-color: var(--ok); }
+.act:has(input:focus-visible) { outline: 3px solid var(--water); outline-offset: 2px; }
+.tally { font: 500 .9rem var(--f-mono); color: var(--muted); }
+.tally b { color: var(--ok); }
+
+footer { padding-block: 40px 64px; border-top: 1px solid var(--line); color: var(--muted); font-size: .95rem; display: grid; gap: 8px; }
+footer strong { font-family: var(--f-display); font-size: 1.4rem; color: var(--ink); }
+
+@media (max-width: 820px) {
+  .loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .story { grid-template-columns: 1fr; gap: 0; }
+  .scene-box { z-index: 2; background: var(--bg); padding-block: 8px; top: env(safe-area-inset-top, 0px); }
+  .step { min-height: 55vh; }
+  .compare, .actions { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) { .loop { grid-template-columns: 1fr; } .meter { grid-template-columns: 90px 1fr 44px; } }
+@media (prefers-reduced-motion: reduce) { .step { opacity: 1; } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Edukasi lingkungan · Musim hujan</span>
+    <h1>Kenali Siklus Hujan, <em>Jaga Saluran Kita</em></h1>
+    <p>Air hujan yang turun di rumah kita harus menemukan jalan pulang ke laut. Saluran air atau got adalah jalan itu. Jika tersumbat, air mencari jalan lain: ke jalan, ke halaman, dan ke dalam rumah.</p>
+  </header>
+
+  <!-- Siklus singkat -->
+  <section class="block" aria-labelledby="h-siklus">
+    <header>
+      <span class="eyebrow">Siklus hujan</span>
+      <h2 id="h-siklus">Air selalu berputar dalam satu lingkaran</h2>
+      <p>Jumlah air di bumi hampir tidak berubah. Air hanya berpindah tempat dan berganti wujud.</p>
+    </header>
+    <ol class="loop">
+      <li><span class="k">01 · Naik</span><h3>Evaporasi</h3><p>Panas matahari menguapkan air laut, sungai, dan danau.</p></li>
+      <li><span class="k">02 · Mengembun</span><h3>Kondensasi</h3><p>Uap air mendingin di udara atas dan membentuk awan.</p></li>
+      <li><span class="k">03 · Turun</span><h3>Presipitasi</h3><p>Titik air di awan makin berat lalu jatuh sebagai hujan.</p></li>
+      <li><span class="k">04 · Pulang</span><h3>Aliran &amp; Resapan</h3><p>Air meresap ke tanah atau mengalir lewat saluran dan sungai kembali ke laut.</p></li>
+    </ol>
+  </section>
+
+  <!-- Cerita saluran -->
+  <section class="story" aria-label="Apa yang terjadi pada air hujan di jalan kita">
+    <div class="scene-box">
+      <svg class="scene" viewBox="0 0 800 500" role="img" aria-label="Penampang jalan dengan rumah, trotoar, dan saluran air di bawahnya yang mengalir ke sungai">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--sky-top)"/><stop offset="1" stop-color="var(--sky-bot)"/></linearGradient>
+          <clipPath id="chanClip"><rect x="60" y="330" width="640" height="80"/></clipPath>
+        </defs>
+        <rect width="800" height="500" fill="url(#sky)"/>
+        <!-- Awan -->
+        <g fill="var(--concrete)" opacity=".9">
+          <ellipse cx="200" cy="60" rx="90" ry="28"/><ellipse cx="260" cy="45" rx="60" ry="26"/>
+          <ellipse cx="520" cy="70" rx="100" ry="30"/><ellipse cx="590" cy="52" rx="60" ry="26"/>
+        </g>
+        <!-- Rumah -->
+        <g>
+          <rect x="70" y="200" width="120" height="90" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+          <path d="M60 205 L130 150 L200 205 Z" fill="var(--warn)"/>
+          <rect x="115" y="240" width="30" height="50" fill="var(--road)"/>
+          <rect x="250" y="215" width="100" height="75" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+          <path d="M240 220 L300 172 L360 220 Z" fill="var(--soil)"/>
+          <rect x="270" y="235" width="22" height="22" fill="var(--sky-top)"/>
+        </g>
+        <!-- Trotoar & jalan -->
+        <rect x="0" y="290" width="800" height="14" fill="var(--concrete)"/>
+        <rect x="380" y="304" width="420" height="26" fill="var(--road)"/>
+        <rect x="0" y="304" width="380" height="26" fill="var(--concrete)"/>
+        <!-- Kisi saluran -->
+        <g stroke="var(--road)" stroke-width="3"><path d="M330 290 v14 M342 290 v14 M354 290 v14 M366 290 v14"/></g>
+        <!-- Tanah -->
+        <rect x="0" y="330" width="800" height="170" fill="var(--soil)"/>
+        <!-- Saluran -->
+        <rect x="60" y="330" width="640" height="80" fill="var(--bg)" opacity=".55"/>
+        <path d="M60 330 V 410 H 700" fill="none" stroke="var(--concrete)" stroke-width="8"/>
+        <!-- Sungai -->
+        <path d="M700 340 Q 750 330 800 340 L 800 500 L 700 500 Z" fill="var(--water)"/>
+        <g clip-path="url(#chanClip)">
+          <rect id="chanWater" x="60" y="405" width="640" height="5" fill="var(--water)" opacity=".85"/>
+          <path id="flow" d="M70 395 H 700" stroke="var(--surface)" stroke-width="3" stroke-dasharray="14 18" fill="none" opacity="0"/>
+        </g>
+        <!-- Sampah -->
+        <g id="trash" opacity="0">
+          <rect x="420" y="368" width="34" height="40" rx="4" fill="var(--trash)"/>
+          <path d="M445 360 l28 10 l-6 38 l-30 0 z" fill="var(--warn)"/>
+          <circle cx="490" cy="392" r="16" fill="var(--concrete)"/>
+          <rect x="470" y="372" width="24" height="16" fill="var(--surface)" transform="rotate(-18 482 380)"/>
+          <ellipse cx="510" cy="400" rx="18" ry="9" fill="var(--trash)"/>
+        </g>
+        <!-- Air limpasan di permukaan -->
+        <g id="runoff" opacity="0" fill="var(--water)">
+          <path d="M200 286 h110 l20 6 h-140 z"/>
+          <path d="M60 300 q 30 -6 60 0 t 60 0" stroke="var(--water)" stroke-width="3" fill="none"/>
+        </g>
+        <!-- Banjir -->
+        <rect id="flood" x="0" y="300" width="700" height="0" fill="var(--water)" opacity=".55"/>
+        <!-- Nyamuk -->
+        <g id="mosq" opacity="0" fill="var(--ink)">
+          <circle cx="160" cy="250" r="3"/><circle cx="210" cy="232" r="3"/><circle cx="300" cy="262" r="3"/><circle cx="420" cy="240" r="3"/><circle cx="470" cy="268" r="3"/>
+        </g>
+        <!-- Hujan -->
+        <g id="rain" opacity="0" stroke="var(--water)" stroke-width="2.5" stroke-linecap="round"></g>
+        <text id="lbl" x="20" y="482" font-family="JetBrains Mono, monospace" font-size="15" fill="var(--surface)">Langkah 1 · Hujan turun</text>
+      </svg>
+      <div class="status"><span>Kondisi saluran</span><span id="pill" class="pill neutral">Menunggu hujan</span></div>
+    </div>
+
+    <div class="steps">
+      <article class="step is-active">
+        <span class="num">Langkah 1</span>
+        <h3>Hujan turun di kota</h3>
+        <p>Awan menjatuhkan jutaan liter air ke atap, halaman, dan jalan. Di kota, sebagian besar permukaan tertutup atap, aspal, dan semen sehingga air sulit meresap ke tanah.</p>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 2</span>
+        <h3>Air mengalir ke saluran</h3>
+        <p>Air yang tidak meresap menjadi limpasan. Ia mengalir di permukaan, masuk lewat kisi-kisi got, lalu berkumpul di saluran air di bawah trotoar.</p>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 3</span>
+        <h3>Saluran bersih, air lancar</h3>
+        <p>Saluran yang bersih membawa air ke sungai dengan cepat. Jalan tetap kering dan siklus air berlanjut: dari sungai ke laut, lalu menguap lagi.</p>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 4</span>
+        <h3>Sampah menyumbat, air meluap</h3>
+        <p>Plastik, botol, dan daun yang menumpuk menahan aliran. Air di saluran naik sampai penuh, lalu meluap ke jalan dan masuk ke pekarangan. Inilah banjir genangan.</p>
+      </article>
+      <article class="step">
+        <span class="num">Langkah 5</span>
+        <h3>Genangan jadi sarang penyakit</h3>
+        <p>Setelah hujan reda, air yang tertahan menjadi tempat nyamuk bertelur, termasuk nyamuk <i>Aedes aegypti</i> pembawa demam berdarah. Air kotor juga bisa menyebarkan diare dan penyakit kulit.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Limpasan -->
+  <section class="block" aria-labelledby="h-beton">
+    <header>
+      <span class="eyebrow">Mengapa saluran penting</span>
+      <h2 id="h-beton">Makin banyak beton, makin banyak air di saluran</h2>
+      <p>Tanah berpori menyerap air hujan seperti spons. Permukaan yang ditutup beton dan aspal membuat air mengalir di atasnya, langsung menuju saluran.</p>
+    </header>
+    <div class="compare">
+      <div class="card">
+        <h3>Lahan alami bervegetasi</h3>
+        <div class="meter"><span>Mengalir</span><span class="bar"><b class="b-run" style="width:10%"></b></span><span class="v">10%</span></div>
+        <div class="meter"><span>Meresap</span><span class="bar"><b class="b-inf" style="width:50%"></b></span><span class="v">50%</span></div>
+      </div>
+      <div class="card">
+        <h3>Kota (75–100% tertutup)</h3>
+        <div class="meter"><span>Mengalir</span><span class="bar"><b class="b-run" style="width:55%"></b></span><span class="v">55%</span></div>
+        <div class="meter"><span>Meresap</span><span class="bar"><b class="b-inf" style="width:15%"></b></span><span class="v">15%</span></div>
+      </div>
+    </div>
+    <p class="note">Perkiraan pembagian air hujan menurut US EPA. Sisanya kembali ke udara lewat penguapan dan transpirasi. Artinya, limpasan di kota bisa lima kali lebih banyak dibanding lahan alami, dan semua air itu harus ditampung saluran.</p>
+  </section>
+
+  <!-- Aksi -->
+  <section class="block" aria-labelledby="h-aksi">
+    <header>
+      <span class="eyebrow">Aksi kita</span>
+      <h2 id="h-aksi">Lima kebiasaan untuk saluran yang lancar</h2>
+      <p>Centang kebiasaan yang sudah atau akan kamu lakukan. Pilihanmu tersimpan di peramban ini saja.</p>
+    </header>
+    <div class="actions">
+      <label class="act" for="a1"><input type="checkbox" id="a1"><span><h3>Buang sampah pada tempatnya</h3><p>Jangan buang plastik, puntung rokok, atau sisa makanan ke got dan sungai.</p></span></label>
+      <label class="act" for="a2"><input type="checkbox" id="a2"><span><h3>Ikut kerja bakti rutin</h3><p>Angkat endapan lumpur dan sampah dari got di depan rumah, terutama menjelang musim hujan.</p></span></label>
+      <label class="act" for="a3"><input type="checkbox" id="a3"><span><h3>Jangan tutup saluran permanen</h3><p>Saluran yang dicor rapat sulit dibersihkan. Sisakan penutup yang bisa dibuka atau kisi-kisi.</p></span></label>
+      <label class="act" for="a4"><input type="checkbox" id="a4"><span><h3>Buat lubang resapan biopori</h3><p>Lubang berdiameter sekitar 10 cm sedalam ±1 meter diisi sampah organik membantu air meresap ke tanah.</p></span></label>
+      <label class="act" for="a5"><input type="checkbox" id="a5"><span><h3>Kuras genangan sekitar rumah</h3><p>Buang air di ban bekas, pot, dan kaleng setelah hujan agar nyamuk tidak bertelur.</p></span></label>
+      <div class="act" style="cursor:default"><span class="tally" id="tally" style="grid-column:1/-1">Kamu sudah memilih <b>0</b> dari 5 kebiasaan.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <strong>Hujan adalah berkah. Banjir bisa dicegah.</strong>
+    <p>Saluran yang bersih membantu air hujan kembali ke sungai dan laut, sehingga siklusnya berjalan tanpa merugikan kita.</p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const NS = "http://www.w3.org/2000/svg";
+
+// Tetes hujan
+const rain = document.getElementById("rain");
+const drops = [];
+for (let i = 0; i < 46; i++) {
+  const l = document.createElementNS(NS, "line");
+  const x = gsap.utils.random(20, 780);
+  l.setAttribute("x1", x); l.setAttribute("x2", x - 5);
+  l.setAttribute("y1", 0); l.setAttribute("y2", 16);
+  rain.appendChild(l); drops.push(l);
+}
+
+const steps = gsap.utils.toArray(".step");
+const lbl = document.getElementById("lbl");
+const pill = document.getElementById("pill");
+const states = [
+  ["Langkah 1 · Hujan turun", "Hujan mulai", "neutral"],
+  ["Langkah 2 · Air masuk saluran", "Air terkumpul", "neutral"],
+  ["Langkah 3 · Saluran bersih", "Lancar", "ok"],
+  ["Langkah 4 · Saluran tersumbat", "Tersumbat · meluap", "warn"],
+  ["Langkah 5 · Genangan", "Genangan · waspada DBD", "warn"]
+];
+let current = -1;
+function setStep(i) {
+  if (i === current) return;
+  current = i;
+  steps.forEach((s, n) => s.classList.toggle("is-active", n === i));
+  lbl.textContent = states[i][0];
+  pill.textContent = states[i][1];
+  pill.className = "pill " + states[i][2];
+}
+
+const mm = gsap.matchMedia();
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+  // Siklus singkat muncul berurutan
+  ScrollTrigger.batch(".loop li", {
+    start: "top 88%", once: true,
+    onEnter: els => gsap.from(els, { y: 30, stagger: .1, duration: .6, ease: "power2.out" })
+  });
+
+  drops.forEach(d => gsap.fromTo(d, { y: gsap.utils.random(60, 120) }, {
+    y: gsap.utils.random(280, 300), duration: gsap.utils.random(.4, .7), ease: "none", repeat: -1, delay: gsap.utils.random(0, .7)
+  }));
+  const flowLoop = gsap.to("#flow", { strokeDashoffset: -64, duration: .8, ease: "none", repeat: -1 });
+  gsap.to("#mosq circle", { x: "random(-12, 12)", y: "random(-10, 10)", duration: .25, ease: "none", repeat: -1, repeatRefresh: true });
+
+  const tl = gsap.timeline({
+    defaults: { ease: "power1.inOut" },
+    scrollTrigger: {
+      trigger: ".steps", start: "top 60%", end: "bottom 70%", scrub: 1,
+      onUpdate: self => {
+        setStep(Math.min(4, Math.floor(self.progress * 5)));
+        flowLoop.timeScale(self.progress > .6 ? .05 : 1);
+      }
+    }
+  });
+  // 1 Hujan
+  tl.to("#rain", { opacity: 1, duration: 1 })
+  // 2 Limpasan masuk saluran
+    .to("#runoff", { opacity: 1, duration: .6 })
+    .to("#chanWater", { attr: { y: 375, height: 35 }, duration: .8 }, "<")
+  // 3 Lancar
+    .to("#flow", { opacity: .9, duration: .5 })
+    .to({}, { duration: .6 })
+  // 4 Tersumbat & meluap
+    .to("#trash", { opacity: 1, duration: .4 })
+    .to("#flow", { opacity: .25, duration: .4 }, "<")
+    .to("#chanWater", { attr: { y: 330, height: 80 }, duration: .7 })
+    .to("#flood", { attr: { y: 262, height: 42 }, duration: .8 })
+  // 5 Genangan
+    .to("#rain", { opacity: 0, duration: .5 })
+    .to("#flood", { attr: { y: 288, height: 16 }, duration: .6 }, "<")
+    .to("#mosq", { opacity: 1, duration: .5 });
+
+  // Batang perbandingan tumbuh
+  gsap.from(".meter .bar b", {
+    scaleX: 0, stagger: .1, duration: .9, ease: "power3.out",
+    scrollTrigger: { trigger: ".compare", start: "top 85%", toggleActions: "play none none reverse" }
+  });
+
+  // Kartu aksi
+  ScrollTrigger.batch(".act", {
+    start: "top 90%", once: true,
+    onEnter: els => gsap.from(els, { y: 24, stagger: .08, duration: .5, ease: "power2.out" })
+  });
+});
+
+mm.add("(prefers-reduced-motion: reduce)", () => {
+  gsap.set("#trash, #mosq", { opacity: 1 });
+  gsap.set("#chanWater", { attr: { y: 330, height: 80 } });
+  gsap.set("#flood", { attr: { y: 288, height: 16 } });
+  lbl.textContent = "Saluran tersumbat → genangan";
+  pill.textContent = "Tersumbat"; pill.className = "pill warn";
+});
+
+setStep(0);
+
+// Daftar aksi tersimpan lokal
+const boxes = gsap.utils.toArray(".act input");
+const tally = document.querySelector("#tally b");
+const KEY = "jaga-saluran-aksi";
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+  boxes.forEach(b => { b.checked = saved.includes(b.id); });
+} catch (e) {}
+function update(e) {
+  const n = boxes.filter(b => b.checked).length;
+  tally.textContent = n;
+  if (e && e.target.checked && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    gsap.fromTo(e.target.closest(".act"), { scale: .97 }, { scale: 1, duration: .4, ease: "back.out(3)" });
+  }
+  try { localStorage.setItem(KEY, JSON.stringify(boxes.filter(b => b.checked).map(b => b.id))); } catch (err) {}
+}
+boxes.forEach(b => b.addEventListener("change", update));
+update();
+
+document.fonts && document.fonts.ready.then(() => ScrollTrigger.refresh());
+</script>
